@@ -159,7 +159,13 @@ def _collect_links_from_index(session: PyPISession, location: Link) -> Iterable[
     else:
         content_type_l = page.content_type.lower()
         if content_type_l.startswith("application/vnd.pypi.simple.v1+json"):
-            return parse_json_response(page)
+            try:
+                return parse_json_response(page)
+            except json.decoder.JSONDecodeError:
+                print(session)
+                print(location)
+                print(page.content)
+                raise
         else:
             return parse_html_page(page)
 

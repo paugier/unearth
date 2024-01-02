@@ -290,11 +290,17 @@ class PackageFinder:
         Returns:
             Sequence[Package]: The packages list sorted by best match
         """
-        return LazySequence(
-            self._evaluate_hashes(
-                self._find_packages(package_name, allow_yanked), hashes=hashes or {}
+        import json
+        try:
+            return LazySequence(
+                self._evaluate_hashes(
+                    self._find_packages(package_name, allow_yanked), hashes=hashes or {}
+                )
             )
-        )
+        except json.decoder.JSONDecodeError:
+            print(f"{package_name=}, {allow_yanked=}, {hashes=}")
+            raise
+
 
     def _find_packages_from_requirement(
         self,
