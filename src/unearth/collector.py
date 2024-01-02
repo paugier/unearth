@@ -82,7 +82,11 @@ def parse_html_page(page: IndexPage) -> Iterable[Link]:
 
 def parse_json_response(page: IndexPage) -> Iterable[Link]:
     """PEP 691 JSON simple API"""
-    data = json.loads(page.content)
+    try:
+        data = json.loads(page.content)
+    except json.decoder.JSONDecodeError:
+        raise RuntimeError(page.content)
+
     base_url = page.link.url_without_fragment
     for file in data.get("files", []):
         url = file.get("url")
@@ -175,6 +179,7 @@ def _is_html_file(file_url: str) -> bool:
 
 
 def _get_html_response(session: PyPISession, location: Link) -> Response:
+    print(f"in _get_html_response, {location=}")
     if is_archive_file(location.filename):
         # If the URL looks like a file, send a HEAD request to ensure
         # the link is an HTML page to avoid downloading a large file.
@@ -197,6 +202,7 @@ def _get_html_response(session: PyPISession, location: Link) -> Response:
     )
     _check_for_status(resp)
     _ensure_index_content_type(resp)
+    print(f"{resp.content[-200:]}")
     return resp
 
 

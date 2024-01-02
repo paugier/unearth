@@ -298,8 +298,7 @@ class PackageFinder:
                 )
             )
         except json.decoder.JSONDecodeError:
-            print(f"{package_name=}, {allow_yanked=}, {hashes=}")
-            raise
+            raise RuntimeError(f"{package_name=}, {allow_yanked=}, {hashes=}")
 
 
     def _find_packages_from_requirement(
